@@ -19,6 +19,7 @@ const menus = [
     ],
   },
   { name: 'Contact', path: '/contact' },
+  { name: 'Auth', path: '/auth' },
 ]
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 10
@@ -146,6 +147,12 @@ onUnmounted(() => {
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </div>
+        <router-link :to="{ name: 'auth', query: { mode: 'register' } }" class="auth-button auth-button-primary">
+          Sign up
+        </router-link>
+        <router-link :to="{ name: 'auth', query: { mode: 'login' } }" class="auth-button auth-button-secondary">
+          Login
+        </router-link>
         <button class="hamburger-btn">
           <svg
             width="24"
@@ -371,7 +378,40 @@ RIGHT SECTION
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+}
+
+.auth-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.auth-button-primary {
+  background: #6644ff;
+  color: white;
+}
+
+.auth-button-primary:hover {
+  background: #563de8;
+  transform: translateY(-1px);
+}
+
+.auth-button-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+}
+
+.auth-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .lang-selector {

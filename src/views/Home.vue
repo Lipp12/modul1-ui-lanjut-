@@ -49,6 +49,7 @@
                 <li><router-link to="/browse/category">Category</router-link></li>
               </ul>
             </li>
+            <li><router-link to="/auth">Auth</router-link></li>
             <li><router-link to="/contact">Contact</router-link></li>
           </ul>
         </li>

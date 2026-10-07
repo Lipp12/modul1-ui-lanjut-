@@ -46,6 +46,20 @@ const routes = [
         ]
       },
       {
+        path: 'auth',
+        name: 'auth',
+        component: () => import('@/views/Auth.vue'),
+        meta: { breadcrumb: 'Authentication' }
+      },
+      {
+        path: 'login',
+        redirect: { name: 'auth', query: { mode: 'login' } }
+      },
+      {
+        path: 'register',
+        redirect: { name: 'auth', query: { mode: 'register' } }
+      },
+      {
         path: 'contact',
         name: 'contact',
         component: () => import('@/views/Contact.vue'),
