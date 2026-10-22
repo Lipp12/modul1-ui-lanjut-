@@ -19,6 +19,7 @@ const menus = [
     ],
   },
   { name: 'Contact', path: '/contact' },
+  { name: 'Organizer', path: '/dashboard' },
   { name: 'Auth', path: '/auth' },
 ]
 const handleScroll = () => {
@@ -147,10 +148,16 @@ onUnmounted(() => {
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </div>
-        <router-link :to="{ name: 'auth', query: { mode: 'register' } }" class="auth-button auth-button-primary">
+        <router-link
+          :to="{ name: 'auth', query: { mode: 'register' } }"
+          class="auth-button auth-button-primary"
+        >
           Sign up
         </router-link>
-        <router-link :to="{ name: 'auth', query: { mode: 'login' } }" class="auth-button auth-button-secondary">
+        <router-link
+          :to="{ name: 'auth', query: { mode: 'login' } }"
+          class="auth-button auth-button-secondary"
+        >
           Login
         </router-link>
         <button class="hamburger-btn">

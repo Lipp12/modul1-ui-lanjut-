@@ -1,64 +1,104 @@
+<script setup>
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useEvents } from '@/composables/useEvents'
+
+const route = useRoute()
+const router = useRouter()
+const { getEventById } = useEvents()
+const event = computed(() => getEventById(route.params.id))
+const isRegistered = ref(false)
+
+const formatEventDate = (date) => {
+  if (!date) return 'Date not set'
+  const parsedDate = new Date(date)
+  if (Number.isNaN(parsedDate.getTime())) return 'Date not set'
+
+  return new Intl.DateTimeFormat('en', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+  }).format(parsedDate)
+}
+
+const formatPrice = (price) => {
+  if (!Number(price)) return 'Free'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(price)
+}
+</script>
+
 <template>
   <div class="event-detail-page">
-    <button @click="$router.push('/browse/events')" class="btn-back">
+    <button type="button" @click="router.push('/browse/events')" class="btn-back">
       &larr; Back to Events
     </button>
 
-    <div class="detail-header">
-      <div class="header-content">
-        <span class="event-tag">Community Event</span>
-        <h1>Community Gathering {{ $route.params.id }}</h1>
-        <div class="meta-info">
-          <div class="meta-item">
-            <span class="icon">📅</span>
-            <span>October 15, 2026</span>
-          </div>
-          <div class="meta-item">
-            <span class="icon">📍</span>
-            <span>Main Auditorium, City Center</span>
-          </div>
-          <div class="meta-item">
-            <span class="icon">👥</span>
-            <span>500+ Attendees</span>
+    <template v-if="event">
+      <div class="detail-header">
+        <div class="header-content">
+          <span class="event-tag">{{ event.category }}</span>
+          <h1>{{ event.title }}</h1>
+          <div class="meta-info">
+            <div class="meta-item">
+              <span class="icon" aria-hidden="true">📅</span>
+              <span>{{ formatEventDate(event.date) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="icon" aria-hidden="true">📍</span>
+              <span>{{ event.location }}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="detail-content">
-      <div class="main-desc">
-        <h2>About This Event</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus
-          hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend
-          nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis
-          nisl tempor.
-        </p>
-        <p>
-          Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent
-          id metus massa, ut blandit odio. Proin quis tortor orci. Etiam at risus et justo dignissim
-          congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu
-          ullamcorper orci.
-        </p>
-
-        <h2>Agenda</h2>
-        <ul class="agenda-list">
-          <li><strong>09:00 AM</strong> - Registration & Welcome Coffee</li>
-          <li><strong>10:00 AM</strong> - Opening Keynote Speech</li>
-          <li><strong>11:30 AM</strong> - Networking Session</li>
-          <li><strong>01:00 PM</strong> - Closing Remarks</li>
-        </ul>
-      </div>
-
-      <div class="sidebar">
-        <div class="ticket-card">
-          <h3>Registration</h3>
-          <p class="price">Free</p>
-          <p class="ticket-desc">Secure your spot today before it runs out.</p>
-          <button class="btn-register">Register Now</button>
-          <p class="spots">Only 45 spots left!</p>
+      <div class="detail-content">
+        <div class="main-desc">
+          <h2>About This Event</h2>
+          <p>{{ event.desc }}</p>
         </div>
+
+        <aside class="sidebar">
+          <div class="ticket-card">
+            <h3>Registration</h3>
+            <p class="price">{{ formatPrice(event.price) }}</p>
+            <p class="ticket-desc">
+              {{
+                event.done ? 'This event has been completed.' : 'Reserve your place at this event.'
+              }}
+            </p>
+            <button
+              type="button"
+              class="btn-register"
+              :class="{ 'event-completed': event.done }"
+              :disabled="event.done || isRegistered"
+              @click="isRegistered = true"
+            >
+              {{
+                event.done
+                  ? 'Registration closed'
+                  : isRegistered
+                    ? "You're registered"
+                    : 'Register Now'
+              }}
+            </button>
+            <p v-if="isRegistered && !event.done" class="registration-feedback" role="status">
+              Your interest has been recorded for this session.
+            </p>
+          </div>
+        </aside>
       </div>
+    </template>
+
+    <div v-else class="not-found">
+      <span aria-hidden="true">⌕</span>
+      <h1>Event not found</h1>
+      <p>This event may have been removed or the link may be out of date.</p>
+      <button type="button" class="btn-register" @click="router.push('/browse/events')">
+        Return to event catalog
+      </button>
     </div>
   </div>
 </template>
@@ -144,7 +184,7 @@
 }
 
 .main-desc h2::before {
-  content: "";
+  content: '';
   display: block;
   width: 20px;
   height: 4px;
@@ -220,6 +260,47 @@
 
 .btn-register:hover {
   background: #6644ff;
+}
+
+.btn-register:disabled {
+  background: #a8a7b3;
+  cursor: not-allowed;
+}
+
+.event-completed {
+  background: #a8a7b3;
+}
+
+.registration-feedback {
+  margin-top: 1rem;
+  color: #238a62;
+  font-size: 0.85rem;
+}
+
+.not-found {
+  max-width: 560px;
+  margin: 3rem auto;
+  padding: 3rem 2rem;
+  border: 1px solid #eeeaf6;
+  border-radius: 20px;
+  background: white;
+  text-align: center;
+}
+
+.not-found > span {
+  color: #7868d6;
+  font-size: 2rem;
+}
+
+.not-found h1 {
+  margin-top: 0.5rem;
+  color: #1c1948;
+  font-size: 1.7rem;
+}
+
+.not-found p {
+  margin: 0.5rem 0 1.5rem;
+  color: #666;
 }
 
 .spots {

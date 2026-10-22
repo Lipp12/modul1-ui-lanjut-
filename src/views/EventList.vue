@@ -1,3 +1,21 @@
+<script setup>
+import { useEvents } from '@/composables/useEvents'
+
+const { activeEvents } = useEvents()
+
+const formatEventDate = (date) => {
+  if (!date) return 'Date not set'
+  const parsedDate = new Date(date)
+  if (Number.isNaN(parsedDate.getTime())) return 'Date not set'
+
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(parsedDate)
+}
+</script>
+
 <template>
   <div class="event-list-page">
     <div class="header-section">
@@ -5,26 +23,32 @@
       <p class="section-desc">Discover the latest gatherings and activities happening near you.</p>
     </div>
 
-    <div class="event-grid">
-      <div class="event-card" v-for="i in 6" :key="i">
+    <div v-if="activeEvents.length > 0" class="event-grid">
+      <article v-for="event in activeEvents" :key="event.id" class="event-card">
         <div class="event-body">
           <div class="event-meta">
-            <span class="event-date">Oct {{ 10 + i }}, 2026</span>
-            <span class="event-category">Community</span>
+            <span class="event-date">{{ formatEventDate(event.date) }}</span>
+            <span class="event-category">{{ event.category }}</span>
           </div>
-          <h3>Community Gathering {{ i }}</h3>
-          <p class="event-loc">📍 Main Auditorium, City Center</p>
-          <p class="event-desc">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at velit vel magna
-            interdum scelerisque.
-          </p>
+          <h3>{{ event.title }}</h3>
+          <p class="event-loc">📍 {{ event.location }}</p>
+          <p class="event-desc">{{ event.desc }}</p>
         </div>
         <div class="card-footer">
-          <router-link :to="`/browse/events/${i}`" class="btn-link">
+          <router-link :to="`/browse/events/${event.id}`" class="btn-link">
             View Details &rarr;
           </router-link>
         </div>
-      </div>
+      </article>
+    </div>
+
+    <div v-else class="empty-state">
+      <span class="empty-icon" aria-hidden="true">✦</span>
+      <h3>No events just yet</h3>
+      <p>
+        Our calendar is ready for something new. Be the first to share an event with the community.
+      </p>
+      <router-link to="/dashboard/events" class="empty-action">Create an event</router-link>
     </div>
   </div>
 </template>
@@ -135,5 +159,55 @@
 
 .btn-link:hover {
   color: #6644ff;
+}
+
+.event-card {
+  overflow: hidden;
+}
+
+.card-footer {
+  margin: 0 2rem;
+}
+
+.empty-state {
+  padding: 4rem 1.5rem;
+  border: 1px dashed #d9d6ea;
+  border-radius: 18px;
+  background: #fbfaff;
+  text-align: center;
+}
+
+.empty-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border-radius: 16px;
+  background: #f0edff;
+  color: #6757c5;
+  font-size: 1.5rem;
+}
+
+.empty-state h3 {
+  color: #292642;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.empty-state p {
+  max-width: 440px;
+  margin: 0.5rem auto 1.2rem;
+  color: #77758b;
+}
+
+.empty-action {
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  border-radius: 9px;
+  background: #5146a8;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
 }
 </style>

@@ -1,38 +1,26 @@
-# PROJECT-UI_LANJUT
+# Gatherly — Manajemen State dan Interaksi Pengguna
 
-This template should help get you started developing with Vue 3 in Vite.
+Aplikasi Gatherly untuk mengelola acara menggunakan Vue 3 Composition API. Data acara disimpan pada satu composable reaktif dan disinkronkan ke `localStorage`, sehingga perubahan dari dashboard penyelenggara langsung terlihat di katalog publik.
 
-## Recommended IDE Setup
+## Fitur
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Dashboard pemantauan dengan ringkasan total, acara aktif, acara selesai, dan status acara terbaru.
+- Event Management dengan tab Active Events, Create Event, dan Completed Events.
+- Validasi formulir, konfirmasi modal untuk aksi selesai/hapus, dan arsip acara.
+- Katalog publik hanya menampilkan acara aktif; halaman detail membaca data berdasarkan ID dan menangani acara yang tidak ditemukan.
+- State acara bertahan setelah halaman dimuat ulang melalui `localStorage`.
 
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Menjalankan aplikasi
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
+Untuk memeriksa build produksi:
 
 ```sh
 npm run build
 ```
+
+Buka `/dashboard` untuk pemantauan, `/dashboard/events` untuk pengelolaan acara, dan `/browse/events` untuk katalog publik. Daftar acara dimulai kosong; buat acara pertama dari halaman pengelolaan.
