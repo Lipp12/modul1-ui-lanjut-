@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEvents } from '@/composables/useEvents';
 import AppModal from '@/components/ui/AppModal.vue';
@@ -10,10 +10,18 @@ const router = useRouter();
 const {
   activeEvents,
   completedEvents,
+  loading,
+  error,
+  isSubmitting,
+  fetchEvents,
   createEvent,
   completeEvent,
   deleteEvent
 } = useEvents();
+
+onMounted(() => {
+  fetchEvents();
+});
 
 // KONDISI TAB AKTIF: 'active' | 'create' | 'completed'
 const currentTab = ref('active');
@@ -49,12 +57,16 @@ const handleOpenDeleteModal = (event) => {
   isModalOpen.value = true;
 };
 
-const handleConfirmModal = () => {
+const handleConfirmModal = async () => {
   if (selectedEvent.value) {
-    if (modalAction.value === 'complete') {
-      completeEvent(selectedEvent.value.id);
-    } else if (modalAction.value === 'delete') {
-      deleteEvent(selectedEvent.value.id);
+    try {
+      if (modalAction.value === 'complete') {
+        await completeEvent(selectedEvent.value.id);
+      } else if (modalAction.value === 'delete') {
+        await deleteEvent(selectedEvent.value.id);
+      }
+    } catch (e) {
+      error.value = e?.message || 'Gagal memproses aksi.';
     }
     isModalOpen.value = false;
     selectedEvent.value = null;
@@ -77,7 +89,7 @@ const formatEventDate = (dt) => {
 };
 
 // HANDLER SUBMIT FORM CREATE EVENT
-const handleSubmitEvent = () => {
+const handleSubmitEvent = async () => {
   // Validate Empty Input
   if (!form.title.trim() || !form.date || !form.loc.trim() || !form.desc.trim()) {
     errorMessage.value = 'Please fill in all required fields before publishing the event!';
@@ -85,31 +97,35 @@ const handleSubmitEvent = () => {
     return;
   }
 
-  createEvent({
-    title: form.title,
-    cat: form.cat,
-    date: formatEventDate(form.date),
-    loc: form.loc,
-    quota: form.quota,
-    price: form.price,
-    desc: form.desc
-  });
+  try {
+    await createEvent({
+      title: form.title,
+      cat: form.cat,
+      date: formatEventDate(form.date),
+      loc: form.loc,
+      quota: form.quota,
+      desc: form.desc
+    });
 
-  // Reset Form
-  form.title = '';
-  form.date = '';
-  form.loc = '';
-  form.quota = 100;
-  form.price = 'Free';
-  form.desc = '';
-  errorMessage.value = '';
-  successMessage.value = 'Event published successfully and is now live!';
+    // Reset Form
+    form.title = '';
+    form.date = '';
+    form.loc = '';
+    form.quota = 100;
+    form.price = 'Free';
+    form.desc = '';
+    errorMessage.value = '';
+    successMessage.value = 'Event published successfully and is now live!';
 
-  // Switch tab back to active list
-  setTimeout(() => {
+    // Switch tab back to active list
+    setTimeout(() => {
+      successMessage.value = '';
+      currentTab.value = 'active';
+    }, 1000);
+  } catch (e) {
+    errorMessage.value = e?.message || 'Gagal mempublikasikan acara.';
     successMessage.value = '';
-    currentTab.value = 'active';
-  }, 1000);
+  }
 };
 </script>
 
@@ -148,7 +164,11 @@ const handleSubmitEvent = () => {
 
     <!-- TAB 1: ACTIVE EVENTS LIST -->
     <section v-if="currentTab === 'active'" class="tab-pane">
-      <div v-if="activeEvents.length > 0" class="events-grid">
+      <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Memuat data acara dari server...</p>
+      </div>
+      <div v-else-if="activeEvents.length > 0" class="events-grid">
         <AppCard v-for="item in activeEvents" :key="item.id" class="organizer-event-card">
           <div class="card-header">
             <span class="category-badge">{{ item.cat }}</span>
@@ -240,7 +260,7 @@ const handleSubmitEvent = () => {
             <button type="button" class="btn-secondary-action" @click="currentTab = 'active'">
               Cancel
             </button>
-            <AppButton variant="primary" type="submit">
+            <AppButton variant="primary" type="submit" :loading="isSubmitting">
               🚀 Publish Event Now
             </AppButton>
           </div>
@@ -250,7 +270,11 @@ const handleSubmitEvent = () => {
 
     <!-- TAB 3: COMPLETED EVENTS (ARCHIVE) -->
     <section v-if="currentTab === 'completed'" class="tab-pane">
-      <div v-if="completedEvents.length > 0" class="events-grid">
+      <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Memuat data acara dari server...</p>
+      </div>
+      <div v-else-if="completedEvents.length > 0" class="events-grid">
         <AppCard v-for="item in completedEvents" :key="item.id" class="organizer-event-card card-completed">
           <div class="card-header">
             <span class="category-badge">{{ item.cat }}</span>
@@ -609,6 +633,25 @@ const handleSubmitEvent = () => {
   background: #e9ecef;
   color: var(--text-main);
 }
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12);
+  color: var(--text-muted);
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: var(--space-4);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 768px) {
   .form-row { grid-template-columns: 1fr; }

@@ -24,7 +24,7 @@ defineEmits(['view-detail']);
 
     <div class="card-footer">
       <span class="event-quota">👥 {{ event.quota }} Pax</span>
-      <span class="event-price">{{ event.price }}</span>
+      <span class="event-price">{{ event.price || 'Free' }}</span>
     </div>
   </AppCard>
 </template>

@@ -11,6 +11,10 @@ defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 });
 </script>
@@ -19,8 +23,9 @@ defineProps({
   <button
     :class="['app-btn', `btn-${variant}`]"
     :type="type"
-    :disabled="disabled"
+    :disabled="disabled || loading"
   >
+    <span v-if="loading" class="btn-spinner" aria-hidden="true"></span>
     <slot />
   </button>
 </template>
@@ -29,6 +34,7 @@ defineProps({
 .app-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   border: none;
   border-radius: 12px;
@@ -61,5 +67,24 @@ defineProps({
 .btn-secondary:hover:not(:disabled) {
   background-color: #e9ecef;
   color: var(--text-main);
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: btn-spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+.btn-secondary .btn-spinner {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: var(--text-muted);
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
 }
 </style>

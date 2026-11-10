@@ -1,9 +1,9 @@
 {
-  "name": "gatherly-modul-4",
+  "name": "gatherly-modul-6",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.6.0",
   "type": "module",
-  "description": "Gatherly - Modul 4: Manajemen State dan Interaksi Pengguna (Vue 3 Composition API)",
+  "description": "Gatherly - Modul 6: Integrasi UI dengan Layanan Sistem (Vue 3 + Vite + MockAPI)",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
